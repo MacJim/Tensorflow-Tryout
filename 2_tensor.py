@@ -9,9 +9,9 @@ import tensorflow as tf
 import numpy as np
 
 
-def test_creation_0():
+def test_creation_1():
     """
-    - Integers are treated as `int32`
+    - Integers are parsed as `int32`
     - Somehow f-strings do not print additional tensor info
     - TODO: What are tensors without axes used for?
     """
@@ -37,6 +37,20 @@ def test_creation_0():
     print(c)    # tf.Tensor([1 2 3], shape=(3,), dtype=int32)
 
 
+def test_creation_2():
+    """
+    - Floats are parsed as `float32`
+    """
+    a = tf.constant(2.16)    # a: 2.1600000858306885
+    print(f"a: {a}")    # tf.Tensor(2.16, shape=(), dtype=float32)
+    print(a)    # tf.Tensor([[1. 2.]], shape=(1, 2), dtype=float32)
+
+    # Force `dtype`.
+    b = tf.constant([[1, 2]], dtype=tf.float32)
+    print(f"b: {b}")    # b: [[1. 2.]]
+    print(b)    # tf.Tensor([[1. 2.]], shape=(1, 2), dtype=float32)
+
+
 def test_mutable():
     # TODO: Tensors are immutable.
     pass
@@ -44,4 +58,5 @@ def test_mutable():
 
 # tf.get_logger().setLevel("ERROR")    # Does not work.
 
-test_creation_0()
+# test_creation_1()
+test_creation_2()
