@@ -1,0 +1,55 @@
+import os
+
+# Disable Tensorflow's debug messages.
+# Must be set before importing Tensorflow.
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # DEBUG, INFO, WARNING, ERROR: 0 ~ 3
+
+import tensorflow as tf
+
+
+def test_basic_1():
+    i = tf.constant([
+        [1, 0],
+        [0, 1]
+    ], dtype=tf.float32)
+
+    a = tf.constant([
+        [1, 2],
+        [3, 4]
+    ], dtype=tf.float32)
+
+    b = tf.constant([
+        [1, 1],
+        [1, 1]
+    ], dtype=tf.float32)
+
+    # Add.
+    add_a_b_1 = a + b
+    add_a_b_2 = tf.add(a, b)
+
+    print("Add:")
+    print("a + b:", add_a_b_1)    # [[2. 3.] [4. 5.]]
+    print("tf.add(a, b):", add_a_b_2)    # [[2. 3.] [4. 5.]]
+
+    # Element wise multiplication.
+    mul_a_b_1 = a * b
+    mul_a_b_2 = tf.multiply(a, b)
+
+    print("Element wise mul:")
+    print("a * b:", mul_a_b_1)    # [[1. 2.] [3. 4.]]
+    print("tf.multiply(a, b):", mul_a_b_2)    # [[1. 2.] [3. 4.]]
+
+    # Matrix mul.
+    mat_mul_a_b_1 = a @ b
+    mat_mul_a_b_2 = tf.matmul(a, b)
+    mat_mul_a_i_1 = a @ i
+    mat_mul_a_i_2 = tf.matmul(a, i)
+
+    print("Matrix mul:")
+    print("a @ b:", mat_mul_a_b_1)    # [[3. 3.] [7. 7.]]
+    print("tf.matmul(a, b):", mat_mul_a_b_2)    # [[3. 3.] [7. 7.]]
+    print("a @ i:", mat_mul_a_i_1)    # [[1. 2.] [3. 4.]]
+    print("tf.matmul(a, i):", mat_mul_a_i_2)    # [[1. 2.] [3. 4.]]
+
+    
+test_basic_1()
