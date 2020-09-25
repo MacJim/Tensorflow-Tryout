@@ -9,6 +9,7 @@ import tensorflow as tf
 import numpy as np
 
 
+# MARK: - Create tensor with scaler or list
 def test_creation_1():
     """
     - Integers are parsed as `int32`
@@ -51,12 +52,36 @@ def test_creation_2():
     print(b)    # tf.Tensor([[1. 2.]], shape=(1, 2), dtype=float32)
 
 
+def test_creation_3():
+    """
+    Can use tuples instead of lists when creating a tensor.
+    """
+    a = tf.constant((
+        (1, 2),
+        (3, 4)
+    ))
+    print(f"a: {a}")
+
+    b = tf.constant((
+        (1, 2),
+        (3, 4)
+    ), dtype=tf.float32)
+    print(f"b: {b}")
+
+    c = tf.constant((
+        (1.0, 2.0),
+        (3.0, 4.0)
+    ))
+    print(f"c: {c}")
+
+
+# TODO: Tensors are immutable
 def test_mutable():
-    # TODO: Tensors are immutable.
     pass
 
 
 # tf.get_logger().setLevel("ERROR")    # Does not work.
 
 # test_creation_1()
-test_creation_2()
+# test_creation_2()
+test_creation_3()
