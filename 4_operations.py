@@ -7,7 +7,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # DEBUG, INFO, WARNING, ERROR: 0 ~ 3
 import tensorflow as tf
 
 
-def test_basic_1():
+def test_basics():
     i = tf.constant([
         [1, 0],
         [0, 1]
@@ -51,5 +51,18 @@ def test_basic_1():
     print("a @ i:", mat_mul_a_i_1)    # [[1. 2.] [3. 4.]]
     print("tf.matmul(a, i):", mat_mul_a_i_2)    # [[1. 2.] [3. 4.]]
 
+
+def test_softmax():
+    a = tf.constant([
+        [1, 1],
+        [2, 2]
+    ], dtype=tf.float32)
     
-test_basic_1()
+    print(f"a softmax default: {tf.nn.softmax(a)}")    # [[0.5 0.5] [0.5 0.5]] Default axis is -1.
+    print(f"a softmax 0: {tf.nn.softmax(a, axis=0)}")    # [[0.26894143 0.26894143] [0.7310586  0.7310586 ]]
+    print(f"a softmax 1: {tf.nn.softmax(a, axis=1)}")    # [[0.5 0.5] [0.5 0.5]]
+    print(f"a softmax -1: {tf.nn.softmax(a, axis=-1)}")    # [[0.5 0.5] [0.5 0.5]]
+
+    
+# test_basics()
+test_softmax()
