@@ -75,6 +75,30 @@ def test_creation_3():
     print(f"c: {c}")
 
 
+# MARK: - Special tensor creation functions
+def test_range_creation():
+    """
+    Range.
+    """
+    a = tf.range(5)
+    print("a:", a)    # tf.Tensor([0 1 2 3 4], shape=(5,), dtype=int32)
+
+    b = tf.range(1, 7, dtype=tf.float32)
+    print("b:", b)    # tf.Tensor([1. 2. 3. 4. 5. 6.], shape=(6,), dtype=float32)
+
+    c = tf.range(1, 7, 2, dtype=tf.float32)
+    print("c:", c)    # tf.Tensor([1. 3. 5.], shape=(3,), dtype=float32)
+
+    d = tf.range(1, 8, 2, dtype=tf.float32)
+    print("d:", d)    # tf.Tensor([1. 3. 5. 7.], shape=(4,), dtype=float32)
+
+    e = tf.range(6, 0, -1)    # Reversed order
+    print("e:", e)    # tf.Tensor([6 5 4 3 2 1], shape=(6,), dtype=int32)
+
+    e_alt = tf.reverse(b, axis=tf.constant([-1]))    # Another way to flip the tensor (this function is called `flip` in torch)
+    print("e_alt:", e_alt)    # tf.Tensor([6. 5. 4. 3. 2. 1.], shape=(6,), dtype=float32)
+
+
 # TODO: Tensors are immutable
 def test_mutable():
     pass
@@ -84,4 +108,6 @@ def test_mutable():
 
 # test_creation_1()
 # test_creation_2()
-test_creation_3()
+# test_creation_3()
+
+test_range_creation()
