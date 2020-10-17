@@ -1,4 +1,5 @@
 import os
+import sys
 
 # Disable Tensorflow's debug messages.
 # Must be set before importing Tensorflow.
@@ -68,14 +69,14 @@ def test_reduce_max():
     """
     Calculate the max values across a dimension.
 
-    Unless `keepdims` is true, the rank (dimension) of the tensor is reduced by 1 for each entry in axis.
+    Unless `keepdims` is `True`, the rank (dimension) of the tensor is reduced by 1 for each entry in axis.
     """
     a = tf.constant(6)
     print(f"a reduce_max default: {tf.reduce_max(a)}")    # 6
     print(f"a reduce_max keep dims: {tf.reduce_max(a, keepdims=True)}")    # 6
 
     b = tf.constant([3, 2, 1], dtype=tf.float32)
-    print(f"b reduce_max default: {tf.reduce_max(b)}")    # 3.0  If `axis` is None, all dimensions are reduced, and a tensor with a single element is returned.
+    print(f"b reduce_max default: {tf.reduce_max(b)}")    # 3.0  If `axis` is None (default), all dimensions are reduced, and a tensor with a single element is returned.
     print(f"b reduce_max -1: {tf.reduce_max(b, axis=-1)}")    # 3.0
     print(f"b reduce_max default keep dims: {tf.reduce_max(b, keepdims=True)}")    # [3.]
     print(f"b reduce_max -1 keep dims: {tf.reduce_max(b, axis=-1, keepdims=True)}")    # [3.]
@@ -86,13 +87,55 @@ def test_reduce_max():
         [4, 5, 6],
     ])
     print(f"c reduce_max default: {tf.reduce_max(c)}")    # 9
+    print(f"c reduce_max 0: {tf.reduce_max(c, axis=0)}")    # [7 8 9]
+    print(f"c reduce_max 1: {tf.reduce_max(c, axis=1)}")    # [9 3 6]
     print(f"c reduce_max -1: {tf.reduce_max(c, axis=-1)}")    # [9 3 6]
     print(f"c reduce_max default keep dims: {tf.reduce_max(c, keepdims=True)}")    # [[9]]
     print(f"c reduce_max -1 keep dims: {tf.reduce_max(c, axis=-1, keepdims=True)}")    # [[9] [3] [6]]
     print(f"c reduce_max 0 keep dims: {tf.reduce_max(c, axis=0, keepdims=True)}")    # [[7 8 9]]
     print(f"c reduce_max 1 keep dims: {tf.reduce_max(c, axis=1, keepdims=True)}")    # [[9] [3] [6]]
 
+    d = tf.range(8)
+    d = tf.reshape(d, (2, 2, 2))
+    print("d:", d)    # [[[0 1] [2 3]]  [[4 5] [6 7]]]
+    print(f"d reduce_max 0: {tf.reduce_max(d, axis=0)}")    # [[4 5] [6 7]]
+    print(f"d reduce_max (0, 1): {tf.reduce_max(d, axis=(0, 1))}")    # [6 7]
+
+
+def test_argmax():
+    """
+    Returns the index with the largest value across axes of a tensor.
+
+    - May only specify a single axis (differnet from `reduce_max`)
+    """
+    # Cannot calculate on tensors without axes.
+    a = tf.constant(6)
+    try:
+        print(f"a argmax default: {tf.argmax(a)}")
+    except:
+        print(f"Tensor without axes: {sys.exc_info()}")
+
+    b = tf.range(6)
+    b = tf.reshape(b, (2, 3))    # [[0 1 2] [3 4 5]]
+    print(f"b argmax default: {tf.argmax(b)}")    # [1 1 1] Default axis is 0 (this is different from `reduce_max`)
+    print(f"b argmax 0: {tf.argmax(b, axis=0)}")    # [1 1 1]
+    print(f"b argmax 1: {tf.argmax(b, axis=1)}")    # [2 2]
+    print(f"b argmax -1: {tf.argmax(b, axis=-1)}")    # [2 2]
+
+    print(f"b argmax 0 int32: {tf.argmax(b, axis=0, output_type=tf.int32)}")    # Default output tensor dtype is `int64`
+
+    # Returns the **smallest/first** index of the smallest value in case of ties.
+    c = tf.ones((2, 3))
+    c *= 6
+    print(f"c argmax default: {tf.argmax(c)}")     # Always [0 0 0]
+    print(f"c argmax -1: {tf.argmax(c, axis=-1)}")    # Always [0 0]
+
     
+# MARK: - Main
 # test_basics()
+
 # test_softmax()
-test_reduce_max()
+
+# test_reduce_max()
+
+test_argmax()
