@@ -26,31 +26,46 @@ def test_basics():
 
     # Add.
     add_a_b_1 = a + b
-    add_a_b_2 = tf.add(c, b)
+    add_a_b_2 = tf.add(a, b)
 
     print("Add:")
     print("a + b:", add_a_b_1)    # [[2. 3.] [4. 5.]]
     print("tf.add(a, b):", add_a_b_2)    # [[2. 3.] [4. 5.]]
 
     # Element wise multiplication.
-    mul_a_b_1 = c * b
-    mul_a_b_2 = tf.multiply(c, b)
+    mul_a_b_1 = a * b
+    mul_a_b_2 = tf.multiply(a, b)
 
     print("Element wise mul:")
     print("a * b:", mul_a_b_1)    # [[1. 2.] [3. 4.]]
     print("tf.multiply(a, b):", mul_a_b_2)    # [[1. 2.] [3. 4.]]
 
     # Matrix mul.
-    mat_mul_a_b_1 = c @ b
-    mat_mul_a_b_2 = tf.matmul(c, b)
-    mat_mul_a_i_1 = c @ i
-    mat_mul_a_i_2 = tf.matmul(c, i)
+    mat_mul_a_b_1 = a @ b
+    mat_mul_a_b_2 = tf.matmul(a, b)
+    mat_mul_a_i_1 = a @ i
+    mat_mul_a_i_2 = tf.matmul(a, i)
 
     print("Matrix mul:")
     print("a @ b:", mat_mul_a_b_1)    # [[3. 3.] [7. 7.]]
     print("tf.matmul(a, b):", mat_mul_a_b_2)    # [[3. 3.] [7. 7.]]
     print("a @ i:", mat_mul_a_i_1)    # [[1. 2.] [3. 4.]]
     print("tf.matmul(a, i):", mat_mul_a_i_2)    # [[1. 2.] [3. 4.]]
+
+
+def test_multiply():
+    a = 6
+    b = tf.constant(6)
+    c = tf.constant([6, 6, 6])
+    d = tf.constant([1, 2, 3])
+
+    # Every operation below yields the same result: tf.Tensor([ 6 12 18], shape=(3,), dtype=int32)
+    print(a * d)
+    print(b * d)
+    print(c * d)
+    print(d * a)
+    print(d * b)
+    print(d * c)
 
 
 def test_softmax():
@@ -134,8 +149,10 @@ def test_argmax():
 # MARK: - Main
 # test_basics()
 
+test_multiply()
+
 # test_softmax()
 
 # test_reduce_max()
 
-test_argmax()
+# test_argmax()
