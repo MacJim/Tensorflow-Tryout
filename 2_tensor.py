@@ -75,6 +75,15 @@ def test_creation_3():
     print(f"c: {c}")
 
 
+# MARK: - Sparse tensor
+def test_sparse_tensor():
+    s = tf.SparseTensor(indices=[[0, 0], [1, 2]], values=[1, 2], dense_shape=[3, 4])
+    print(s)
+
+    t = tf.sparse.to_dense(s)
+    print(t)    # [[1 0 0 0] [0 0 2 0] [0 0 0 0]]
+
+
 # MARK: - Special tensor creation functions
 def test_range_creation():
     """
@@ -110,4 +119,6 @@ def test_mutable():
 # test_creation_2()
 # test_creation_3()
 
-test_range_creation()
+test_sparse_tensor()
+
+# test_range_creation()
