@@ -53,7 +53,7 @@ def test_basics():
     print("tf.matmul(a, i):", mat_mul_a_i_2)    # [[1. 2.] [3. 4.]]
 
 
-def test_multiply():
+def test_multiply_1():
     a = 6
     b = tf.constant(6)
     c = tf.constant([6, 6, 6])
@@ -66,6 +66,55 @@ def test_multiply():
     print(d * a)
     print(d * b)
     print(d * c)
+
+
+def test_multiply_2():
+    """
+    Can use the `*` operator on a vertical vector and a horizontal vector.
+    In this case, the `*` operator behaves as a `@` (matrix multiplication) operator.
+
+    I think it's better to use `@` to prevent ambiguity.
+    """
+    a = tf.range(3)
+    a = tf.reshape(a, (3, 1))
+    b = tf.range(4)
+    print(a * b)    # [[0 0 0 0] [0 1 2 3] [0 2 4 6]] Somehow this becomes matrix multiplication.
+    # print(a @ b)    # InvalidArgumentError: b is not a matrix
+
+    c = tf.reshape(b, (1, 4))
+    print(a @ c)    # [[0 0 0 0] [0 1 2 3] [0 2 4 6]]
+
+    d = tf.range(3)
+    e = tf.range(4)
+    e = tf.reshape(e, (4, 1))
+    print(d * e)    # [[0 0 0] [0 1 2] [0 2 4] [0 3 6]] Somehow the `*` operator swapped `d` and `e` for matrix multiplication.
+    
+    f = tf.reshape(d, (1, 3))
+    print(e @ f)    # [[0 0 0] [0 1 2] [0 2 4] [0 3 6]]
+
+
+def test_multiply_3():
+    """
+    Cannot use the `*` operator on 2 horizontals vectors, or 2 vertical vectors.
+    """
+    a = tf.range(3)
+    b = tf.range(4)
+    # print(a * b)    # InvalidArgumentError: Incompatible shapes: [3] vs. [4] [Op:Mul]
+
+    c = tf.reshape(a, (1, 3))
+    d = tf.reshape(b, (1, 4))
+    # print(c * d)    # InvalidArgumentError: Incompatible shapes: [1,3] vs. [1,4] [Op:Mul]
+
+
+def test_multiply_4():
+    """
+    Cannot use the `*` operator on 2 matrices.
+    """
+    a = tf.range(12)
+    b = tf.reshape(a, (4, 3))
+    c = tf.reshape(a, (3, 4))
+    # print(b * c)    # InvalidArgumentError: Incompatible shapes: [4,3] vs. [3,4] [Op:Mul]
+    print(b @ c)    # [[ 20  23  26  29] [ 56  68  80  92] [ 92 113 134 155] [128 158 188 218]]
 
 
 def test_softmax():
@@ -149,7 +198,10 @@ def test_argmax():
 # MARK: - Main
 # test_basics()
 
-test_multiply()
+# test_multiply_1()
+test_multiply_2()
+# test_multiply_3()
+# test_multiply_4()
 
 # test_softmax()
 
