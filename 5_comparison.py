@@ -81,7 +81,26 @@ def test_element_wise_larger_smaller_3():
         print(f"Cannot compare a and d: exception: {sys.exc_info()}")    # (<class 'tensorflow.python.framework.errors_impl.InvalidArgumentError'>, InvalidArgumentError(), <traceback object at 0x7fd74ef59048>)
 
 
+def test_element_wise_larger_smaller_different_shapes():
+    """
+    Do element wise comparisons on tensors of different shapes.
+    """
+    a = tf.range(6)
+    b = tf.reshape(a, (2, -1))
+
+    print("a:", a)
+    print("b:", b)
+
+    try:
+        result1 = a > b    # tensorflow.python.framework.errors_impl.InvalidArgumentError: Incompatible shapes: [6] vs. [2,3] [Op:Greater]
+        print(result1)
+    except Exception as e:
+        print(sys.exc_info())
+        print(e)
+
 
 # test_element_wise_larger_smaller_1()
 # test_element_wise_larger_smaller_2()
-test_element_wise_larger_smaller_3()
+# test_element_wise_larger_smaller_3()
+
+test_element_wise_larger_smaller_different_shapes()
