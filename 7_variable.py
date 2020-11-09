@@ -8,7 +8,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # DEBUG, INFO, WARNING, ERROR: 0 ~ 3
 import tensorflow as tf
 
 
-def test1():
+def test_basics():
     x = tf.range(6)
     x = tf.reshape(x, (2, 3))
 
@@ -22,7 +22,7 @@ def test1():
     print(z)
 
 
-def test2():
+def test_operations_1():
     """
     Using the following operations on a variable returns a tensor instead:
 
@@ -50,7 +50,21 @@ def test2():
     print(z_div)    # Tensor [0.5 1.  1.5 2. ]
 
 
-def test3():
+def test_operations_2():
+    """
+    Use `assign`, `assign_add`, and `assign_sub` to modify a `Variable`.
+    """
+    x = tf.Variable([1, 2, 3, 4], dtype=tf.float32)
+    print(x)    # Variable [1., 2., 3., 4.]
+    x.assign(tf.range(6, 10, dtype=tf.float32))
+    print(x)    # Variable [6., 7., 8., 9.]
+    x.assign_add(tf.ones(x.shape, dtype=x.dtype))
+    print(x)    # Variable [ 7.,  8.,  9., 10.]
+    x.assign_sub(tf.ones(x.shape, dtype=x.dtype))
+    print(x)    # Variable [6., 7., 8., 9.]
+
+
+def test_memory():
     x = tf.range(6)
 
     # They don't share their memory.
@@ -67,6 +81,7 @@ def test3():
 
 
 if (__name__ == "__main__"):
-    # test1()
-    # test2()
-    test3()
+    # test_basics()
+    # test_operations_1()
+    test_operations_2()
+    # test_memory()
