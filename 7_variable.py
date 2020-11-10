@@ -65,23 +65,27 @@ def test_operations_2():
 
 
 def test_memory():
+    """
+    Variables copied from tensors/variables don't share memory.
+    """
     x = tf.range(6)
 
-    # They don't share their memory.
     y1 = tf.Variable(x)
     y2 = tf.Variable(y1)
     y3 = tf.Variable(y1)
 
+    y1.assign(tf.ones(y1.shape, dtype=tf.int32))
     y2.assign(tf.range(1, 7))
-    y3.assign_add(tf.ones(y3.shape, dtype=y3.dtype))    # Note that the default dtype for `ones` is `tf.dtypes.float32`.
+    y3.assign_sub(tf.ones(y3.shape, dtype=y3.dtype))    # Note that the default dtype for `ones` is `tf.dtypes.float32`.
 
-    print(f"y1: {y1}")    # Variable [0, 1, 2, 3, 4, 5]
+    print(f"x: {x}")    # [0 1 2 3 4 5]
+    print(f"y1: {y1}")    # Variable [1, 1, 1, 1, 1, 1]
     print(f"y2: {y2}")    # Variable [1, 2, 3, 4, 5, 6]
-    print(f"y3: {y3}")    # Variable [1, 2, 3, 4, 5, 6]
+    print(f"y3: {y3}")    # Variable [-1,  0,  1,  2,  3,  4]
 
 
 if (__name__ == "__main__"):
     # test_basics()
     # test_operations_1()
-    test_operations_2()
-    # test_memory()
+    # test_operations_2()
+    test_memory()
