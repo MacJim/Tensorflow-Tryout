@@ -8,6 +8,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # DEBUG, INFO, WARNING, ERROR: 0 ~ 3
 import tensorflow as tf
 
 
+# MARK: +-*/
 def test_basics():
     i = tf.constant([
         [1, 0],
@@ -51,6 +52,18 @@ def test_basics():
     print("tf.matmul(a, b):", mat_mul_a_b_2)    # [[3. 3.] [7. 7.]]
     print("a @ i:", mat_mul_a_i_1)    # [[1. 2.] [3. 4.]]
     print("tf.matmul(a, i):", mat_mul_a_i_2)    # [[1. 2.] [3. 4.]]
+
+
+def test_add_sub():
+    a = tf.range(4)
+    a = tf.reshape(a, (2, 2))
+
+    b = a + 1
+    c = a - 4
+
+    print(a)    # [[0 1] [2 3]]
+    print(b)    # [[1 2] [3 4]]
+    print(c)    # [[-4 -3] [-2 -1]]
 
 
 def test_multiply_1():
@@ -117,6 +130,7 @@ def test_multiply_4():
     print(b @ c)    # [[ 20  23  26  29] [ 56  68  80  92] [ 92 113 134 155] [128 158 188 218]]
 
 
+# MARK: - Softmax
 def test_softmax():
     a = tf.constant([
         [1, 1],
@@ -129,6 +143,7 @@ def test_softmax():
     print(f"a softmax -1: {tf.nn.softmax(a, axis=-1)}")    # [[0.5 0.5] [0.5 0.5]]
 
 
+# MARK: - Max and argmax
 def test_reduce_max():
     """
     Calculate the max values across a dimension.
@@ -196,15 +211,18 @@ def test_argmax():
 
     
 # MARK: - Main
-# test_basics()
+if (__name__ == "__main__"):
+    # test_basics()
 
-# test_multiply_1()
-test_multiply_2()
-# test_multiply_3()
-# test_multiply_4()
+    test_add_sub()
 
-# test_softmax()
+    # test_multiply_1()
+    # test_multiply_2()
+    # test_multiply_3()
+    # test_multiply_4()
 
-# test_reduce_max()
+    # test_softmax()
 
-# test_argmax()
+    # test_reduce_max()
+
+    # test_argmax()
