@@ -1,3 +1,14 @@
+"""
+Source: https://www.tensorflow.org/guide/autodiff
+
+Non-differentiable operations (try to avoid these)
+
+- Accidentally changed a `Variable` to a `Tensor`: refer to `7_variable.py`'s `test_operations_1`
+- Operations from `numpy` or other frameworks
+- `int`s or strings are not differentiable
+- Stateful objects (e.g. additional `Variable`s)
+"""
+
 import os
 
 # Disable Tensorflow's debug messages.
@@ -120,6 +131,48 @@ def test_persistence_2():
     print(f"dz_dy: {dz_dy}")    # 18.0
 
 
+# MARK: - Scalar multiple targets
+def test_scalar_sum_1():
+    x = tf.Variable(2.0)
+
+    with tf.GradientTape() as tape:
+        y1 = x ** 2    # 4.0
+        y2 = x ** -1    # -0.25
+
+    print(tape.gradient([y1, y2], x))    # 3.75 = 4.0 - 0.25
+
+
+def test_scalar_sum_2():
+    x = tf.Variable(2.0)
+
+    with tf.GradientTape() as tape:
+        y = x * [2.0, 3.0]
+
+    print(tape.gradient(y, x))    # 5.0 = 2.0 + 3.0
+
+
+# MARK: - Int tensors
+def test_int():
+    x = tf.Variable(2)
+
+    with tf.GradientTape() as tape:    # WARNING:tensorflow:The dtype of the target tensor must be floating (e.g. tf.float32) when calling GradientTape.gradient, got tf.int32
+        y = x ** 2
+
+    print(tape.gradient(y, x))
+
+
+# MARK: - Stateful object
+def test_multi_stateful_objects():
+    x = tf.Variable(2.0)
+
+    with tf.GradientTape(persistent=True) as tape:
+        y = tf.Variable(x + 2)    # `Variable` has an internal state. Thus the gradient flow stops here.
+        z = y ** 2
+
+    print(tape.gradient(z, y))    # 8.0
+    print(tape.gradient(z, x))    # None
+
+
 # MARK: - Main
 if (__name__ == "__main__"):
     # test_scalar()
@@ -130,4 +183,11 @@ if (__name__ == "__main__"):
     # test_model()
 
     # test_persistence_1()
-    test_persistence_2()
+    # test_persistence_2()
+
+    # test_scalar_sum_1()
+    # test_scalar_sum_2()
+
+    test_int()
+
+    test_multi_stateful_objects()
