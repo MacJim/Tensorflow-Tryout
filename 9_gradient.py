@@ -70,7 +70,7 @@ def test_multi_variables():
     print(dl_db)    # tf.Tensor([-0.41205198 -1.9556504 ], shape=(2,), dtype=float32)
 
 
-# MARK: -
+# MARK: - Model
 def test_model():
     layer = keras.layers.Dense(2, activation="relu")
     x = tf.constant([[1., 2., 3.]])
@@ -89,11 +89,45 @@ def test_model():
         print(f"{var.name}, shape: {g.shape}")
 
 
+# MARK: - Persistence
+def test_persistence_1():
+    """
+    `tape.gradient` can only be called once on a non-persistent tape.
+    """
+    x = tf.Variable(3.0)
+
+    with tf.GradientTape() as tape:
+        y = x ** 2
+        z = y ** 2
+
+    dy_dx = tape.gradient(y, x)
+    dz_dy = tape.gradient(z, y)
+
+    print(f"dy_dx: {dy_dx}")    # 6.0
+    print(f"dz_dy: {dz_dy}")    # Should be 18.0, but received "RuntimeError: GradientTape.gradient can only be called once on non-persistent tapes." instead.
+
+
+def test_persistence_2():
+    x = tf.Variable(3.0)
+    with tf.GradientTape(persistent=True) as tape:
+        y = x ** 2
+        z = y ** 2
+
+    dy_dx = tape.gradient(y, x)
+    dz_dy = tape.gradient(z, y)
+
+    print(f"dy_dx: {dy_dx}")    # 6.0
+    print(f"dz_dy: {dz_dy}")    # 18.0
+
+
 # MARK: - Main
 if (__name__ == "__main__"):
     # test_scalar()
-    test_watch()
+    # test_watch()
     # test_multi_axes()
     # test_multi_variables()
 
     # test_model()
+
+    # test_persistence_1()
+    test_persistence_2()
