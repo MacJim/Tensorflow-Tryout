@@ -5,8 +5,10 @@ import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # DEBUG, INFO, WARNING, ERROR: 0 ~ 3
 
 import tensorflow as tf
+from tensorflow import keras
 
 
+# MARK: - Basics
 def test_scalar():
     x = tf.Variable(3.0)
     # print(x)
@@ -18,17 +20,30 @@ def test_scalar():
     print(dy_dx)    # tf.Tensor(6.0, shape=(), dtype=float32)
 
 
-def test_constant():
+def test_watch():
     """
-    May only calculate gradient for a `Variable`.
+    By default, all trainable variables are watched.
+
+    Regular `Tensor`s are not watched by default.
+
+    Use `tape.watch` to watch it.
     """
-    x = tf.constant(3.0)
+    x1 = tf.constant(3.0, name="x1")
+    x2 = tf.Variable(3.0, trainable=False, name="x2")
+    x3 = tf.Variable(3.0, name="x3")    # Names appear in `watched_variables()`.
+    x4 = tf.Variable(3.0, name="x4")
 
     with tf.GradientTape() as tape:
-        y = x ** 2
+        # tape.watch(x1)
+        y = x1 ** 2 + x2 ** 2 + x3 ** 2
 
-    dy_dx = tape.gradient(y, x)
-    print(dy_dx)    # None
+    [dy_dx1, dy_dx2, dy_dx3, dy_dx4] = tape.gradient(y, [x1, x2, x3, x4])
+    print(f"dy_dx1: {dy_dx1}")    # None
+    print(f"dy_dx2: {dy_dx2}")    # None
+    print(f"dy_dx3: {dy_dx3}")    # 6.0
+    print(f"dy_dx4: {dy_dx4}")    # None (because `x4` wasn't used)
+
+    print(f"Watched variables: {tape.watched_variables()}")    # Only `x3` appears here. Constants do not appear here (even manually watched).
 
 
 def test_multi_axes():
@@ -55,8 +70,30 @@ def test_multi_variables():
     print(dl_db)    # tf.Tensor([-0.41205198 -1.9556504 ], shape=(2,), dtype=float32)
 
 
+# MARK: -
+def test_model():
+    layer = keras.layers.Dense(2, activation="relu")
+    x = tf.constant([[1., 2., 3.]])
+
+    with tf.GradientTape() as tape:
+        # Forward pass
+        y = layer(x)
+        loss = tf.reduce_mean(y**2)
+
+    # Calculate gradients with respect to every trainable variable
+    grad = tape.gradient(loss, layer.trainable_variables)
+
+    for var, g in zip(layer.trainable_variables, grad):
+        # dense/kernel:0, shape: (3, 2)
+        # dense/bias:0, shape: (2,)
+        print(f"{var.name}, shape: {g.shape}")
+
+
+# MARK: - Main
 if (__name__ == "__main__"):
     # test_scalar()
-    # test_constant()
-    test_multi_axes()
-    test_multi_variables()
+    test_watch()
+    # test_multi_axes()
+    # test_multi_variables()
+
+    # test_model()
