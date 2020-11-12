@@ -26,12 +26,34 @@ class DenseReLU (tf.Module):
         return tf.nn.relu(x)
 
 
+class LazyDenseReLU (tf.Module):
+    """
+    We don't ask for `in_features` and infer it when this module is first called.
+    """
+    def __init__(self, out_features: int):
+        super().__init__()
+
+        self.is_built = False
+        self.out_features = out_features
+        self.b = tf.Variable(tf.zeros([out_features]), name="b")
+
+    def __call__(self, x: tf.Tensor) -> tf.Tensor:
+        if not self.is_built:
+            self.w = tf.Variable(tf.random.normal([x.shape[-1], self.out_features]), name="w")
+            self.is_built = True
+
+        x = x @ self.w + self.b
+        return tf.nn.relu(x)
+
+
 class TestModule (tf.Module):
     def __init__(self):
         super().__init__()
 
-        self.dense_1 = DenseReLU(in_features=3, out_features=3)
-        self.dense_2 = DenseReLU(in_features=3, out_features=2)
+        # self.dense_1 = DenseReLU(in_features=3, out_features=3)
+        # self.dense_2 = DenseReLU(in_features=3, out_features=2)
+        self.dense_1 = LazyDenseReLU(out_features=3)
+        self.dense_2 = LazyDenseReLU(out_features=2)
 
     def __call__(self, x: tf.Tensor) -> tf.Tensor:
         x = self.dense_1(x)
