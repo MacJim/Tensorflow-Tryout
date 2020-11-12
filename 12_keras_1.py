@@ -16,6 +16,11 @@ import tensorflow as tf
 from tensorflow import keras
 
 
+# MARK: - Constants
+SAVED_MODEL_DIR_NAME = "saved_models/12"
+SAVED_MODEL_WEIGHTS_FILENAME = "checkpoints/12"
+
+
 # MARK: - Module definitions
 class LazyDenseReLU (keras.layers.Layer):
     def __init__(self, out_features: int):
@@ -80,12 +85,20 @@ if (__name__ == "__main__"):
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     # print(f"Working directory: {os.getcwd()}")
 
-    # MARK: Create model
-    # model = TestModule()
-    model = get_functional_model()
+    # MARK: Create/restore model
+    model = TestModule()
+    # model = get_functional_model()
+
+    model.load_weights(SAVED_MODEL_WEIGHTS_FILENAME)
+    # model = keras.models.load_model(SAVED_MODEL_DIR_NAME)
+
     print("Sub modules:", model.submodules)
 
     # MARK: Infer
-    input = tf.random.normal((1, 3))
+    input = tf.ones((1, 3))
     output = model(input)
     print("Output:", output)
+
+    # MARK: Save model
+    # model.save(SAVED_MODEL_DIR_NAME)    # This saves not only the model, but other states (e.g. optimizer state) as well.
+    # model.save_weights(SAVED_MODEL_WEIGHTS_FILENAME)    # This only saves the weights.
