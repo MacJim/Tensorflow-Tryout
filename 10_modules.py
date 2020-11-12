@@ -11,6 +11,11 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # DEBUG, INFO, WARNING, ERROR: 0 ~ 3
 import tensorflow as tf
 
 
+# MARK: - Constants
+CHECKPOINT_FILENAME = "checkpoints/1"
+
+
+# MARK: - Module definitions
 class DenseReLU (tf.Module):
     """
     We ask for both `in_features` and `out_features` so that we can obtain the shape of `self.w` right away.
@@ -61,14 +66,42 @@ class TestModule (tf.Module):
         return x
 
 
-model = TestModule()
-print(f"Trainable variables: {model.trainable_variables}")
-print(f"All variables: {model.variables}")
-print(f"Submodules: {model.submodules}")    # 2 `__main__.DenseReLU object`s
+# MARK: - Save/Load model
+def save_model_to_checkpoint(model: TestModule, checkpoint_filename: str):
+    """
+    The `write` function creates the checkpoint directory automatically.
+    """
+    checkpoint = tf.train.Checkpoint(model=model)    # I think this `Checkpoint` instance is bound to `model`
+    checkpoint.write(checkpoint_filename)
+    print(f"Variables in saved checkpoint file: {tf.train.list_variables(checkpoint_filename)}")    # Somehow this prints the shapes of the variables instead of their values.
 
-input = tf.ones((1, 3))
-input *= 3    # [[3. 3. 3.]]
-# print(input)
 
-output = model(input)
-print(output)    # shape=(1, 2)
+def restore_checkpoint_to_model(checkpoint_filename: str, model: TestModule):
+    checkpoint = tf.train.Checkpoint(model=model)
+    checkpoint.restore(checkpoint_filename)
+
+
+# MARK: - Main
+if (__name__ == "__main__"):
+    # MARK: Switch to current dir 
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    print(f"Working directory: {os.getcwd()}")
+
+    # MARK: Create & restore a model
+    model = TestModule()
+    restore_checkpoint_to_model(CHECKPOINT_FILENAME, model)
+    print(f"Trainable variables: {model.trainable_variables}")
+    print(f"All variables: {model.variables}")
+    print(f"Submodules: {model.submodules}")    # 2 `__main__.DenseReLU object`s
+
+    # MARK: Infer
+    input = tf.ones((1, 3))
+    input *= 3    # [[3. 3. 3.]]
+    # print(input)
+
+    output = model(input)
+    print("Output:", output)    # shape=(1, 2)
+
+    # MARK: Save model
+    save_model_to_checkpoint(model, CHECKPOINT_FILENAME)
+    
