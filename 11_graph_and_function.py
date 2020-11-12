@@ -13,7 +13,8 @@ import tensorflow as tf
 
 
 # MARK: - Constants
-VISUALIZATION_DIR = "visualizations"
+VISUALIZATION_DIR_NAME = "visualizations"
+SAVED_MODEL_DIR_NAME = "saved_models/11"
 
 
 # MARK: - Module definitions
@@ -51,6 +52,8 @@ class TestModule (tf.Module):
 # MARK: - Visualization
 def save_model_visualization(model: tf.Module, save_dir: str):
     """
+    Save model visualization for `tensorboard`.
+
     I saw a lot of deprecation warnings.
     Then why does the official guide still use such methods?
     """
@@ -77,10 +80,21 @@ if (__name__ == "__main__"):
 
     # MARK: Create a model
     model = TestModule()
-    save_model_visualization(model, VISUALIZATION_DIR)
+    # save_model_visualization(model, VISUALIZATION_DIR_NAME)
 
     # MARK: Infer
     inputs = [tf.constant([[3.0, 3.0, 3.0]]), tf.constant([[[3.0, 3.0, 3.0], [3.0, 3.0, 3.0]]])]
     for input in inputs:
         output = model(input)
-        print("Output:", output)    # Output shapes: (1, 2) and (1, 2, 2)
+        print("Original model output:", output)    # Output shapes: (1, 2) and (1, 2, 2)
+
+    # MARK: Save and load model.
+    tf.saved_model.save(model, SAVED_MODEL_DIR_NAME)    # Saves the graph and variables.
+    # You can load the saved model without defining the `TestModule` class. The loaded model is not of that class either.
+    new_model = tf.saved_model.load(SAVED_MODEL_DIR_NAME)
+    
+    # Note that the loaded model only have the original signature.
+    inputs.append(tf.constant([[[3.0, 3.0, 3.0], [3.0, 3.0, 3.0], [3.0, 3.0, 3.0]]]))    # This newly added shape was undefined in the original model. Thus, it cannot be calculated.
+    for input in inputs:
+        new_output = new_model(input)
+        print("New model output:", new_output)
