@@ -12,7 +12,7 @@ import tensorflow as tf
 
 
 # MARK: - Constants
-CHECKPOINT_FILENAME = "checkpoints/1"
+CHECKPOINT_DIR_NAME = "checkpoints/10"
 
 
 # MARK: - Module definitions
@@ -66,8 +66,9 @@ class TestModule (tf.Module):
         return x
 
 
-# MARK: - Save/Load model
-def save_model_to_checkpoint(model: TestModule, checkpoint_filename: str):
+# MARK: - Save/Load
+# MARK: Model weights
+def save_model_weights_to_checkpoint(model: TestModule, checkpoint_filename: str):
     """
     The `write` function creates the checkpoint directory automatically.
     """
@@ -76,7 +77,7 @@ def save_model_to_checkpoint(model: TestModule, checkpoint_filename: str):
     print(f"Variables in saved checkpoint file: {tf.train.list_variables(checkpoint_filename)}")    # Somehow this prints the shapes of the variables instead of their values.
 
 
-def restore_checkpoint_to_model(checkpoint_filename: str, model: TestModule):
+def restore_checkpoint_to_model_weights(checkpoint_filename: str, model: TestModule):
     checkpoint = tf.train.Checkpoint(model=model)
     checkpoint.restore(checkpoint_filename)
 
@@ -89,7 +90,7 @@ if (__name__ == "__main__"):
 
     # MARK: Create & restore a model
     model = TestModule()
-    restore_checkpoint_to_model(CHECKPOINT_FILENAME, model)
+    restore_checkpoint_to_model_weights(CHECKPOINT_DIR_NAME, model)
     print(f"Trainable variables: {model.trainable_variables}")
     print(f"All variables: {model.variables}")
     print(f"Submodules: {model.submodules}")    # 2 `__main__.DenseReLU object`s
@@ -103,5 +104,5 @@ if (__name__ == "__main__"):
     print("Output:", output)    # shape=(1, 2)
 
     # MARK: Save model
-    save_model_to_checkpoint(model, CHECKPOINT_FILENAME)
+    save_model_weights_to_checkpoint(model, CHECKPOINT_DIR_NAME)
     
