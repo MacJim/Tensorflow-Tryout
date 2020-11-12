@@ -61,6 +61,19 @@ class TestModule (keras.Model):
         return x
 
 
+# MARK: - Functional API
+def get_functional_model():
+    inputs = keras.Input(shape=(3,))    # We're not specifying all dimensions here.
+    x = LazyDenseReLU(out_features=3)(inputs)
+    x = LazyDenseReLU(out_features=2)(x)
+
+    functional_model: keras.Model = keras.Model(inputs=inputs, outputs=x, name="mj_functional_model")
+    # print("Model summary:")
+    print(functional_model.summary(line_length=100))    # The default line length clips some of the description.
+
+    return functional_model
+
+
 # MARK: - Main
 if (__name__ == "__main__"):
     # MARK: Switch to current dir
@@ -68,7 +81,8 @@ if (__name__ == "__main__"):
     # print(f"Working directory: {os.getcwd()}")
 
     # MARK: Create model
-    model = TestModule()
+    # model = TestModule()
+    model = get_functional_model()
     print("Sub modules:", model.submodules)
 
     # MARK: Infer
