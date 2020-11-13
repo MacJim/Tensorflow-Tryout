@@ -1,6 +1,8 @@
-# Saved checkpoints and visualizations
+# Saved checkpoints, models and visualizations
 /checkpoints/
 /visualizations/
+/saved_models/
+/13/
 
 # Editor preferences
 .vscode/
