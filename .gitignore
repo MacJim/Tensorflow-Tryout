@@ -1,5 +1,8 @@
+# Custom cuDNN library path
+/custom_cudnn_lib_dir.txt
+
 # `dlopen` tryout binary
-16_dlopen_tryout.out
+/16_dlopen_tryout.out
 
 # Saved checkpoints, models and visualizations
 /checkpoints/
