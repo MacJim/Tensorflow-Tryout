@@ -1,3 +1,6 @@
+# `dlopen` tryout binary
+16_dlopen_tryout.out
+
 # Saved checkpoints, models and visualizations
 /checkpoints/
 /visualizations/
