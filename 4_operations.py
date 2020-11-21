@@ -130,6 +130,19 @@ def test_multiply_4():
     print(b @ c)    # [[ 20  23  26  29] [ 56  68  80  92] [ 92 113 134 155] [128 158 188 218]]
 
 
+def test_power():
+    a = tf.reshape(tf.range(4, dtype=tf.float32), (2, 2))
+    b = tf.reshape(tf.range(3, -1, -1, dtype=tf.float32), (2, 2))
+    c = a - b
+    print(c)    # [[-3. -1.] [ 1.  3.]]
+
+    # They are the same: [[9. 1.] [1. 9.]]
+    print(tf.square(c))
+    print(c ** 2)
+
+    print(tf.norm(c))    # L2 norm: sqrt(20)
+
+
 # MARK: - Softmax
 def test_softmax():
     a = tf.constant([
@@ -214,12 +227,14 @@ def test_argmax():
 if (__name__ == "__main__"):
     # test_basics()
 
-    test_add_sub()
+    # test_add_sub()
 
     # test_multiply_1()
     # test_multiply_2()
     # test_multiply_3()
     # test_multiply_4()
+
+    test_power()
 
     # test_softmax()
 
