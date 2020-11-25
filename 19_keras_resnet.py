@@ -53,6 +53,13 @@ def test_resnet50_include_top_false():
         model.summary(print_fn=lambda x: f.write(x + '\n'), line_length=SUMMARY_LINE_LEN)
 
 
+# MARK: ResNet 50 v2
+def test_resnet50v2_default():
+    model = keras.applications.ResNet50V2()
+    with open("19/resnet50v2_default.txt", "w") as f:
+        model.summary(print_fn=lambda x: f.write(x + '\n'), line_length=SUMMARY_LINE_LEN)
+
+
 # MARK: - Main
 if (__name__ == "__main__"):
     # MARK: Switch to current dir
@@ -63,7 +70,12 @@ if (__name__ == "__main__"):
     # test_resnet50_layers()
 
     # MARK: Run some of the test functions concurrently
-    test_functions = [test_resnet50_default, test_resnet50_custom_input, test_resnet50_include_top_false]
+    test_functions = [
+        test_resnet50_default, 
+        test_resnet50_custom_input, 
+        test_resnet50_include_top_false,
+        test_resnet50v2_default,
+    ]
     processes = []
 
     for f in test_functions:
