@@ -3,16 +3,17 @@ Source: https://keras.io/api/applications/resnet/
 """
 import os
 import multiprocessing
+import typing
 
 import tensorflow as tf
 from tensorflow import keras
 
 
 # MARK: - Constants
-SUMMARY_LINE_LEN = 132
-RESNET_DEFAULT_INPUT_SHAPE = (224, 224, 3)
-ALTERNATIVE_INPUT_SHAPE = (256, 256, 3)
-N_CLASSES = 128
+SUMMARY_LINE_LEN: typing.Final = 132
+RESNET_DEFAULT_INPUT_SHAPE: typing.Final = (224, 224, 3)
+ALTERNATIVE_INPUT_SHAPE: typing.Final = (256, 256, 3)
+N_CLASSES: typing.Final = 128
 
 
 # MARK: - Print summary
@@ -23,7 +24,7 @@ def test_resnet50_layers():
         print(layer)
 
 
-def test_last_layer_softmax_1():
+def test_last_layer_softmax():
     """
     It seems that softmax is applied to the last (top) dense layer (by default).
 
@@ -56,21 +57,31 @@ def test_last_layer_softmax_1():
     print(f"Output 22: min: {tf.reduce_min(output22).numpy()}, max: {tf.reduce_max(output22).numpy()}, mean: {tf.reduce_mean(output22).numpy()}, sum: {tf.reduce_sum(output22).numpy()}")    # Sum is always float(batch_size)
 
 
-def test_last_layer_softmax_2():
+def test_disable_last_layer_softmax():
     """
-    Disable the last (top) dense layer's softmax by specifing `classifier_activation=None`.
+    Disable the last (top) dense layer's softmax by specifing `classifier_activation=None` or by copying the weights to a custom network.
     """
     batch_size = 6
 
     input1 = tf.random.uniform((batch_size,) + RESNET_DEFAULT_INPUT_SHAPE, minval=0.0, maxval=1.0)
-    model1 = keras.applications.ResNet50(classifier_activation=None)    # Somehow the `classifier_activation` function is undocumented.
-    output1 = model1(input1)
-    print(f"Output 1: min: {tf.reduce_min(output1).numpy()}, max: {tf.reduce_max(output1).numpy()}, mean: {tf.reduce_mean(output1).numpy()}, sum: {tf.reduce_sum(output1).numpy()}")    # Sum is no longer `batch_size`.
+
+    model11 = keras.applications.ResNet50(classifier_activation=None)    # Somehow the `classifier_activation` function is undocumented.
+    output11 = model11(input1)
+    print(f"Output 11: min: {tf.reduce_min(output11).numpy()}, max: {tf.reduce_max(output11).numpy()}, mean: {tf.reduce_mean(output11).numpy()}, sum: {tf.reduce_sum(output11).numpy()}")    # Sum is no longer `batch_size`.
+
+    model12 = keras.Sequential([
+        keras.applications.ResNet50(include_top=False),
+        keras.layers.GlobalAveragePooling2D(name="avg_pool"),
+        keras.layers.Dense(1000, name="predictions"),
+    ])
+    model12.set_weights(model11.get_weights())
+    output12 = model12(input1)
+    print(f"Output 12: min: {tf.reduce_min(output12).numpy()}, max: {tf.reduce_max(output12).numpy()}, mean: {tf.reduce_mean(output12).numpy()}, sum: {tf.reduce_sum(output12).numpy()}")
 
     input2 = tf.random.uniform((batch_size,) + RESNET_DEFAULT_INPUT_SHAPE, minval=-1.0, maxval=1.0)
-    model2 = keras.applications.ResNet50V2(classifier_activation=None)
-    output2 = model2(input2)
-    print(f"Output 2: min: {tf.reduce_min(output2).numpy()}, max: {tf.reduce_max(output2).numpy()}, mean: {tf.reduce_mean(output2).numpy()}, sum: {tf.reduce_sum(output2).numpy()}")    # Sum is no longer `batch_size`.
+    model21 = keras.applications.ResNet50V2(classifier_activation=None)
+    output21 = model21(input2)
+    print(f"Output 21: min: {tf.reduce_min(output21).numpy()}, max: {tf.reduce_max(output21).numpy()}, mean: {tf.reduce_mean(output21).numpy()}, sum: {tf.reduce_sum(output21).numpy()}")    # Sum is no longer `batch_size`.
 
 
 # MARK: - Write summary to file
@@ -121,24 +132,18 @@ if (__name__ == "__main__"):
     # MARK: Print summary
     # test_resnet50_layers()
 
-    # test_last_layer_softmax_1()
-    test_last_layer_softmax_2()
+    # test_last_layer_softmax()
+    test_disable_last_layer_softmax()
 
-    exit(0)
+    # exit(0)
 
     # MARK: Run some of the test functions concurrently
-    test_functions = [
-        test_resnet50_default, 
-        test_resnet50_custom_input, 
-        test_resnet50_include_top_false,
-        test_resnet50v2_default,
-    ]
-    processes = []
-
-    for f in test_functions:
-        p = multiprocessing.Process(target=f)
-        p.start()
-        processes.append(p)
-
-    for p in processes:
-        p.join()
+    # test_functions = [
+    #     test_resnet50_default, 
+    #     test_resnet50_custom_input, 
+    #     test_resnet50_include_top_false,
+    #     test_resnet50v2_default,
+    # ]
+    # with multiprocessing.Pool(2) as pool:
+    #     for f in test_functions:
+    #         pool.apply_async(f)
