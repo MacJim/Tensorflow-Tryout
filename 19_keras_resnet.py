@@ -22,12 +22,19 @@ def test_resnet50_layers():
 
 
 # MARK: - Write summary to file
+# MARK: ResNet 50
 def test_resnet50_default():
+    model = keras.applications.ResNet50()
+    with open("19/resnet50_default.txt", "w") as f:
+        model.summary(print_fn=lambda x: f.write(x + '\n'), line_length=SUMMARY_LINE_LEN)
+
+
+def test_resnet50_custom_input():
     """
     - When `include_top` is `True` (default) and `weights` is `"imagenet"` (default), input must has shape (224, 224, 3)
     """
     model = keras.applications.ResNet50(weights=None, input_shape=ALTERNATIVE_INPUT_SHAPE, classes=N_CLASSES)
-    with open("19/resnet50_default.txt", "w") as f:
+    with open("19/resnet50_custom_input.txt", "w") as f:
         model.summary(print_fn=lambda x: f.write(x + '\n'), line_length=SUMMARY_LINE_LEN)
 
 
@@ -56,7 +63,7 @@ if (__name__ == "__main__"):
     # test_resnet50_layers()
 
     # MARK: Run some of the test functions concurrently
-    test_functions = [test_resnet50_default, test_resnet50_include_top_false]
+    test_functions = [test_resnet50_default, test_resnet50_custom_input, test_resnet50_include_top_false]
     processes = []
 
     for f in test_functions:
