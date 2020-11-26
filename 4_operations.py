@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 
 # Disable Tensorflow's debug messages.
 # Must be set before importing Tensorflow.
@@ -224,7 +225,10 @@ def test_argmax():
 
 
 # MARK: - Norm
-def test_norm():
+def test_norm_1():
+    """
+    Tests `tf.norm`.
+    """
     a = tf.constant([1, 1, 1, 1], dtype=tf.float32)
 
     b = tf.reshape(a, (2, 2))
@@ -252,6 +256,77 @@ def test_norm():
     print(gradient)    # [[[[0.]] [[0.]]] [[[0.]] [[0.]]]], shape=(2, 2, 1, 1) This doesn't work.
 
     
+def test_norm_2():
+    """
+    Tests `tf.math.l2_normalize`.
+    """
+    def _test_l2_normalize(x: tf.Variable):
+        with tf.GradientTape() as tape:
+            y = tf.math.l2_normalize(x, axis=0)
+
+        print("Output:", y)
+        gradient = tape.gradient(y, x)
+        print("Gradient:", gradient)
+
+    a1 = tf.constant([1, 1, 1, 1], dtype=tf.float32)
+    x1 = tf.Variable(tf.reshape(a1, (2, 2, 1, 1)))
+    # Output: [[[[0.70710677]] [[0.70710677]]] [[[0.70710677]] [[0.70710677]]]], shape=(2, 2, 1, 1)
+    # Gradient: [[[[5.9604645e-08]] [[5.9604645e-08]]] [[[5.9604645e-08]] [[5.9604645e-08]]]], shape=(2, 2, 1, 1)
+    print("\nTest 1:")
+    _test_l2_normalize(x1)
+
+    a2 = tf.constant([2, 2, 2, 2], dtype=tf.float32)
+    x2 = tf.Variable(tf.reshape(a2, (2, 2, 1, 1)))
+    # Output: [[[[0.70710677]] [[0.70710677]]] [[[0.70710677]] [[0.70710677]]]], shape=(2, 2, 1, 1)
+    # Gradient: [[[[2.9802322e-08]] [[2.9802322e-08]]] [[[2.9802322e-08]] [[2.9802322e-08]]]], shape=(2, 2, 1, 1)
+    print("\nTest 2:")
+    _test_l2_normalize(x2)
+
+    a3 = tf.constant([1, 2, 1, 2], dtype=tf.float32)
+    x3 = tf.Variable(tf.reshape(a3, (2, 2, 1, 1)))
+    print("\nTest 3:")
+    print("Input:", x3)
+    _test_l2_normalize(x3)
+
+    a4 = tf.constant([1, 2, 1, 2], dtype=tf.float32)
+    x4 = tf.Variable(tf.reshape(a4, (2, 2)))
+    print("\nTest 4:")
+    _test_l2_normalize(x4)
+
+
+def _test_norm_2_derivatives_1():
+    x = [(1.0, 1.0)]
+    dy_dx1 = [((x1 ** 2) / math.sqrt(x1 ** 2 + x2 ** 2) + math.sqrt(x1 ** 2 + x2 ** 2)) / (x1 ** 2 + x2 ** 2) for x1, x2 in x]
+    
+    for (x1, x2), d in zip(x, dy_dx1):
+        print(x1, x2, d)
+
+
+def _test_norm_2_derivatives_2():
+    x1 = tf.Variable(1.0)
+    x2 = tf.Variable(2.0)
+    with tf.GradientTape(persistent=True) as tape:
+        y1 = x1 / tf.sqrt(x1 ** 2 + x2 ** 2)
+        y2 = x2 / tf.sqrt(x1 ** 2 + x2 ** 2)
+
+    print("y1:", y1)
+    gradient1 = tape.gradient(y1, x1)
+    print("Gradient 1:", gradient1)
+    print("y2:", y2)
+    gradient2 = tape.gradient(y2, x2)
+    print("Gradient 2:", gradient2)
+
+
+def _test_norm_2_derivatives_3():
+    x = tf.Variable([1.0, 2.0])
+    with tf.GradientTape() as tape:
+        y = tf.math.l2_normalize(x)
+
+    print("y:", y)
+    gradient = tape.gradient(y, x)
+    print("Gradient:", gradient)    # [ 0.17888546 -0.08944267] TODO: Why is the 2nd value negative?
+
+    
 # MARK: - Main
 if (__name__ == "__main__"):
     # test_basics()
@@ -271,4 +346,8 @@ if (__name__ == "__main__"):
 
     # test_argmax()
 
-    test_norm()
+    # test_norm_1()
+    # test_norm_2()
+    # _test_norm_2_derivatives_1()
+    _test_norm_2_derivatives_2()
+    _test_norm_2_derivatives_3()
