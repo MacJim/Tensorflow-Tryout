@@ -222,6 +222,35 @@ def test_argmax():
     print(f"c argmax default: {tf.argmax(c)}")     # Always [0 0 0]
     print(f"c argmax -1: {tf.argmax(c, axis=-1)}")    # Always [0 0]
 
+
+# MARK: - Norm
+def test_norm():
+    a = tf.constant([1, 1, 1, 1], dtype=tf.float32)
+
+    b = tf.reshape(a, (2, 2))
+    b_norm = tf.norm(b)
+    print(b_norm)    # 2.0 = 4.0 / sqrt(2.0)
+
+    c = tf.reshape(a, (2, 2, 1, 1))
+    c_norm_0 = tf.norm(c, axis=0)
+    print(c_norm_0)    # [[[1.4142135]] [[1.4142135]]] shape=(2, 1, 1)
+    # c_norm_1 = tf.norm(c, axis=(1, 2, 3))
+    # print(c_norm_1)
+
+    d = tf.reshape(a, (1, 2, 2, 1))
+    d_norm = tf.norm(d, axis=0)
+    print(d_norm)    # [[[1.] [1.]] [[1.] [1.]]] shape=(2, 2, 1)
+
+    e = tf.Variable(c)
+    with tf.GradientTape() as tape:
+        e_norm_0 = e[0] / tf.norm(e[0])
+        e_norm_1 = e[1] / tf.norm(e[1])
+
+        e_norm_stacked = tf.stack([e_norm_0, e_norm_1])
+
+    gradient = tape.gradient(e_norm_stacked, e)
+    print(gradient)    # [[[[0.]] [[0.]]] [[[0.]] [[0.]]]], shape=(2, 2, 1, 1) This doesn't work.
+
     
 # MARK: - Main
 if (__name__ == "__main__"):
@@ -234,10 +263,12 @@ if (__name__ == "__main__"):
     # test_multiply_3()
     # test_multiply_4()
 
-    test_power()
+    # test_power()
 
     # test_softmax()
 
     # test_reduce_max()
 
     # test_argmax()
+
+    test_norm()
