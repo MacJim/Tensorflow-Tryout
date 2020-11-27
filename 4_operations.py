@@ -259,10 +259,17 @@ def test_norm_1():
 def test_norm_2():
     """
     Tests `tf.math.l2_normalize`.
+
+    `axis` specifies the axes to normalize on (can specify multiple axes).
     """
-    def _test_l2_normalize(x: tf.Variable):
+    a0 = tf.reshape(tf.repeat(1.0, (16,)), (1, -1))    # [[1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.]], shape=(1, 16)
+    print(a0)
+    y0 = tf.math.l2_normalize(a0, axis=1)    # [[0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25]], shape=(1, 16)
+    print(y0)
+
+    def _test_l2_normalize(x: tf.Variable, axes=0):
         with tf.GradientTape() as tape:
-            y = tf.math.l2_normalize(x, axis=0)
+            y = tf.math.l2_normalize(x, axis=axes)
 
         print("Output:", y)
         gradient = tape.gradient(y, x)
@@ -272,26 +279,31 @@ def test_norm_2():
     x1 = tf.Variable(tf.reshape(a1, (2, 2, 1, 1)))
     # Output: [[[[0.70710677]] [[0.70710677]]] [[[0.70710677]] [[0.70710677]]]], shape=(2, 2, 1, 1)
     # Gradient: [[[[5.9604645e-08]] [[5.9604645e-08]]] [[[5.9604645e-08]] [[5.9604645e-08]]]], shape=(2, 2, 1, 1)
-    print("\nTest 1:")
-    _test_l2_normalize(x1)
+    print("\n======================== Test 1 ========================")
+    _test_l2_normalize(x1, axes=(1, 2, 3))
 
     a2 = tf.constant([2, 2, 2, 2], dtype=tf.float32)
     x2 = tf.Variable(tf.reshape(a2, (2, 2, 1, 1)))
     # Output: [[[[0.70710677]] [[0.70710677]]] [[[0.70710677]] [[0.70710677]]]], shape=(2, 2, 1, 1)
     # Gradient: [[[[2.9802322e-08]] [[2.9802322e-08]]] [[[2.9802322e-08]] [[2.9802322e-08]]]], shape=(2, 2, 1, 1)
-    print("\nTest 2:")
-    _test_l2_normalize(x2)
+    print("\n======================== Test 2 ========================")
+    _test_l2_normalize(x2, axes=(1, 2, 3))
 
     a3 = tf.constant([1, 2, 1, 2], dtype=tf.float32)
     x3 = tf.Variable(tf.reshape(a3, (2, 2, 1, 1)))
-    print("\nTest 3:")
+    print("\n======================== Test 3 ========================")
     print("Input:", x3)
-    _test_l2_normalize(x3)
+    _test_l2_normalize(x3, axes=(1, 2, 3))
 
     a4 = tf.constant([1, 2, 1, 2], dtype=tf.float32)
     x4 = tf.Variable(tf.reshape(a4, (2, 2)))
-    print("\nTest 4:")
-    _test_l2_normalize(x4)
+    print("\n======================== Test 4 ========================")
+    _test_l2_normalize(x4, axes=1)
+
+    a5 = tf.reshape(tf.repeat(1.0, (32,)), (2, 4, 2, 2))
+    x5 = tf.Variable(a5)
+    print("\n======================== Test 5 ========================")
+    _test_l2_normalize(x5, axes=(1, 2, 3))    # All 0.25 = 1 / sqrt(1 * 16), shape=(2, 4, 2, 2)
 
 
 def _test_norm_2_derivatives_1():
@@ -347,7 +359,7 @@ if (__name__ == "__main__"):
     # test_argmax()
 
     # test_norm_1()
-    # test_norm_2()
+    test_norm_2()
     # _test_norm_2_derivatives_1()
-    _test_norm_2_derivatives_2()
-    _test_norm_2_derivatives_3()
+    # _test_norm_2_derivatives_2()
+    # _test_norm_2_derivatives_3()
